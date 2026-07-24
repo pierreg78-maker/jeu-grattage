@@ -1,405 +1,789 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>L'Archéologue du Temps - Jeu à Gratter</title>
-    <style>
-        :root {
-            --color-s1: #e6c280;
-            --color-s2: #bc6c25;
-            --color-s3: #8b4513;
-            --color-s4: #654321;
-            --color-s5: #4a3525;
-            --color-s6: #111111;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>L'Archéologue du Temps — Musée</title>
+  <style>
+    :root {
+      --or: #e6c280;
+      --cuivre: #bc6c25;
+      --fond: #171411;
+      --panneau: #28231e;
+      --texte: #f8f1e5;
+      --s1: #dfc18b;
+      --s2: #bd7a3f;
+      --s3: #925127;
+      --s4: #6e4028;
+      --s5: #49372d;
+      --s6: #201d1b;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #f4f4f9;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            user-select: none;
-            -webkit-user-select: none;
-        }
+    * { box-sizing: border-box; }
 
-        h1 {
-            font-size: 1.3rem;
-            margin: 6px 0 2px 0;
-            color: #e6c280;
-            text-align: center;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(188,108,37,.18), transparent 38%),
+        var(--fond);
+      color: var(--texte);
+      margin: 0;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+      -webkit-user-select: none;
+      min-height: 100vh;
+    }
 
-        .instructions {
-            font-size: 0.75rem;
-            color: #ccc;
-            text-align: center;
-            max-width: 400px;
-            margin-bottom: 8px;
-        }
+    h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(1.4rem, 5vw, 1.9rem);
+      color: var(--or);
+      text-align: center;
+      margin: 4px 0 2px;
+      letter-spacing: .03em;
+    }
 
-        .game-container {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+    .sous-titre {
+      color: #d8cbb9;
+      font-size: .78rem;
+      text-align: center;
+      margin: 0 0 10px;
+    }
 
-        .strate-wrapper {
-            position: relative;
-            height: 60px;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
-            border: 2px solid #444;
-        }
+    .barre-haute,
+    .game-container,
+    .panneau-score,
+    .musee {
+      width: 100%;
+      max-width: 430px;
+    }
 
-        .strate-wrapper.bloquee {
-            opacity: 0.35;
-            filter: grayscale(80%);
-            pointer-events: none;
-        }
+    .barre-haute {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
 
-        /* Couleurs des 6 strates en fond */
-        .strate-wrapper:nth-child(1) { background-color: var(--color-s1); }
-        .strate-wrapper:nth-child(2) { background-color: var(--color-s2); }
-        .strate-wrapper:nth-child(3) { background-color: var(--color-s3); }
-        .strate-wrapper:nth-child(4) { background-color: var(--color-s4); }
-        .strate-wrapper:nth-child(5) { background-color: var(--color-s5); }
-        .strate-wrapper:nth-child(6) { background-color: var(--color-s6); }
+    .progression {
+      background: #28231e;
+      border: 1px solid #51483f;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: .8rem;
+    }
 
-        .contenu-strate {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 0 10px;
-            box-sizing: border-box;
-            z-index: 1;
-        }
+    .progression strong { color: var(--or); }
 
-        .chrono-label {
-            font-size: 0.7rem;
-            font-weight: bold;
-            color: #000;
-            background: rgba(255,255,255,0.9);
-            padding: 3px 6px;
-            border-radius: 4px;
-            width: 75px;
-            text-align: center;
-            flex-shrink: 0;
-            margin-right: 15px;
-        }
+    .btn-musee {
+      border: 1px solid #d1aa62;
+      background: linear-gradient(#5d4328, #3b2c1e);
+      color: #fff5d8;
+      border-radius: 10px;
+      min-height: 42px;
+      padding: 7px 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
 
-        .elements-box {
-            font-size: 1.2rem;
-            letter-spacing: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            flex-grow: 1;
-            padding-right: 10px;
-        }
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
 
-        canvas.scratch-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            cursor: crosshair;
-            touch-action: none;
-        }
+    .strate-wrapper {
+      position: relative;
+      height: 66px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.16);
+      box-shadow: inset 0 3px 8px rgba(0,0,0,.42), 0 2px 5px rgba(0,0,0,.25);
+      transition: opacity .2s, transform .2s;
+    }
 
-        .feedback-sonore {
-            font-size: 0.75rem;
-            font-style: italic;
-            color: #ffeb3b;
-            min-height: 16px;
-            text-align: center;
-            margin-top: 6px;
-            font-weight: bold;
-        }
+    .strate-wrapper:nth-child(1) { background: var(--s1); }
+    .strate-wrapper:nth-child(2) { background: var(--s2); }
+    .strate-wrapper:nth-child(3) { background: var(--s3); }
+    .strate-wrapper:nth-child(4) { background: var(--s4); }
+    .strate-wrapper:nth-child(5) { background: var(--s5); }
+    .strate-wrapper:nth-child(6) { background: var(--s6); }
 
-        .panneau-score {
-            margin-top: 6px;
-            padding: 6px 12px;
-            background: #2a2a2a;
-            border-radius: 6px;
-            border: 1px solid #444;
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-            font-size: 0.85rem;
-        }
+    .strate-wrapper.bloquee {
+      opacity: .33;
+      filter: grayscale(.75);
+      pointer-events: none;
+    }
 
-        .btn {
-            background-color: #bc6c25;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 6px;
-            width: 100%;
-            max-width: 420px;
-            font-weight: bold;
-        }
+    .strate-wrapper.decouverte {
+      opacity: 1;
+      filter: none;
+      border-color: rgba(230,194,128,.65);
+    }
 
-        .btn:disabled {
-            background-color: #444;
-            color: #888;
-            cursor: not-allowed;
-        }
-    </style>
+    .contenu-strate {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px;
+    }
+
+    .chrono-label {
+      width: 82px;
+      flex: 0 0 82px;
+      color: #241a12;
+      background: rgba(255,250,235,.91);
+      border-radius: 7px;
+      padding: 5px 4px;
+      text-align: center;
+      font-size: .7rem;
+      font-weight: 900;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    .elements-box {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      font-size: 1.35rem;
+      gap: 4px;
+    }
+
+    canvas.scratch-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .feedback {
+      width: 100%;
+      max-width: 430px;
+      min-height: 42px;
+      margin: 8px 0 5px;
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #ffe88a;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .panneau-score {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: var(--panneau);
+      border: 1px solid #51483f;
+      border-radius: 10px;
+      padding: 9px;
+      text-align: center;
+      font-size: .85rem;
+    }
+
+    .panneau-score strong {
+      display: block;
+      color: var(--or);
+      font-size: 1.05rem;
+      margin-top: 2px;
+    }
+
+    .btn {
+      width: 100%;
+      max-width: 430px;
+      margin-top: 8px;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 15px;
+      background: linear-gradient(#d0833e, #a75b1e);
+      color: white;
+      font-size: .95rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #6d3514;
+    }
+
+    .btn:disabled {
+      background: #45413d;
+      box-shadow: none;
+      color: #918c86;
+      cursor: not-allowed;
+    }
+
+    .musee {
+      display: none;
+      margin-top: 10px;
+      background: #f4ead6;
+      color: #34261b;
+      border: 3px solid #8c6435;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 8px 26px rgba(0,0,0,.36);
+    }
+
+    .musee.ouvert { display: block; }
+
+    .musee h2 {
+      margin: 0 0 3px;
+      text-align: center;
+      font-family: Georgia, serif;
+      color: #68431f;
+    }
+
+    .musee p {
+      margin: 0 0 10px;
+      text-align: center;
+      font-size: .76rem;
+    }
+
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .objet {
+      min-height: 92px;
+      border: 1px solid #cbb692;
+      background: rgba(255,255,255,.48);
+      border-radius: 9px;
+      padding: 7px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .objet .icone { font-size: 1.75rem; }
+    .objet .nom { font-size: .68rem; font-weight: 900; margin-top: 4px; }
+    .objet .rarete { font-size: .58rem; color: #7d5e3d; margin-top: 2px; }
+
+    .objet.inconnu .icone {
+      filter: grayscale(1) brightness(.25);
+      opacity: .28;
+    }
+
+    .objet.inconnu .nom { color: #8b8175; }
+
+    .objet.nouveau {
+      animation: pulseObjet .85s ease 2;
+      outline: 3px solid #f5c344;
+    }
+
+    @keyframes pulseObjet {
+      50% { transform: scale(1.06); background: #fff2b7; }
+    }
+
+    .decouverte-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      background: rgba(10,8,5,.73);
+      padding: 22px;
+    }
+
+    .decouverte-popup.visible { display: grid; }
+
+    .carte-decouverte {
+      width: min(330px, 92vw);
+      padding: 22px 18px;
+      color: #3b2a18;
+      text-align: center;
+      background:
+        linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.05)),
+        #ead8ad;
+      border: 4px solid #a87933;
+      border-radius: 18px;
+      box-shadow: 0 15px 60px rgba(0,0,0,.55);
+      animation: apparition .35s ease-out;
+    }
+
+    @keyframes apparition {
+      from { transform: scale(.72) rotate(-3deg); opacity: 0; }
+    }
+
+    .carte-decouverte .grand-icone { font-size: 4.4rem; }
+    .carte-decouverte h3 {
+      font-family: Georgia, serif;
+      margin: 5px 0;
+      color: #6a431d;
+      font-size: 1.35rem;
+    }
+
+    .carte-decouverte .badge {
+      display: inline-block;
+      margin: 3px 0 8px;
+      padding: 4px 9px;
+      border-radius: 99px;
+      background: #6a431d;
+      color: #fff4d5;
+      font-size: .68rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .carte-decouverte p {
+      font-size: .82rem;
+      line-height: 1.35;
+      margin: 6px 0 13px;
+    }
+
+    .petit-btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 14px;
+      background: #9b5c20;
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .reset {
+      display: block;
+      margin: 12px auto 0;
+      border: 0;
+      background: transparent;
+      color: #8c6a48;
+      text-decoration: underline;
+      font-size: .68rem;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+  <h1>🏺 L’Archéologue du Temps</h1>
+  <p class="sous-titre">Trois coups de pioche pour enrichir le musée du Village</p>
 
-    <h1>L'Archéologue du Temps</h1>
-    <div class="instructions">
-        Choisis une strate et frotte pour la gratter. 3 coups de pioche max.
+  <div class="barre-haute">
+    <div class="progression">
+      Collection : <strong><span id="objetsTrouves">0</span>/<span id="objetsTotal">0</span></strong>
     </div>
+    <button class="btn-musee" id="btnMusee">🏛️ Mon musée</button>
+  </div>
 
-    <div class="game-container" id="gameContainer">
-        <!-- Généré dynamiquement -->
+  <div class="game-container" id="gameContainer"></div>
+
+  <div class="feedback" id="feedbackSonore">
+    Choisis une strate et commence les fouilles…
+  </div>
+
+  <div class="panneau-score">
+    <div>Coups restants<strong id="coupsRestants">3</strong></div>
+    <div>Gain du ticket<strong><span id="gainActuel">0</span> 🪙</strong></div>
+  </div>
+
+  <button class="btn" id="btnNouveauTicket">Nouveau ticket · 1 🪙</button>
+
+  <section class="musee" id="musee">
+    <h2>Le musée du Village</h2>
+    <p>Les objets découverts sont conservés sur cet appareil.</p>
+    <div class="collection-grid" id="collectionGrid"></div>
+    <button class="reset" id="btnResetCollection">Réinitialiser la collection</button>
+  </section>
+
+  <div class="decouverte-popup" id="popup">
+    <div class="carte-decouverte">
+      <div class="grand-icone" id="popupIcone"></div>
+      <div class="badge" id="popupRarete"></div>
+      <h3 id="popupNom"></h3>
+      <p id="popupDescription"></p>
+      <button class="petit-btn" id="btnFermerPopup">Ajouter au musée</button>
     </div>
+  </div>
 
-    <div class="feedback-sonore" id="feedbackSonore">Appuie sur un ticket pour commencer...</div>
+  <script>
+    const anneesStrates = ["-1 000", "-2 000", "-3 000", "-4 000", "-5 000", "-6 000"];
+    const emoticonsAmbiance = ["🐚", "🪨", "🦴", "🔥", "⚱️", "🧱", "🌿"];
 
-    <div class="panneau-score">
-        Coups restants : <span id="coupsRestants">3</span> | Gain : <span id="gainActuel">0</span> 🪙
-    </div>
+    const catalogueObjets = [
+      { id: "piece-romaine", icone: "🪙", nom: "Monnaie antique", rarete: "Commun", description: "Une monnaie usée par d’innombrables échanges au marché du vieux village." },
+      { id: "amphore", icone: "🏺", nom: "Amphore intacte", rarete: "Commun", description: "Un petit récipient de terre cuite miraculeusement préservé." },
+      { id: "ammonite", icone: "🐚", nom: "Ammonite", rarete: "Commun", description: "Le fossile spiralé d’une créature marine disparue depuis des millénaires." },
+      { id: "pointe", icone: "🔺", nom: "Pointe de silex", rarete: "Commun", description: "Un outil taillé avec une précision étonnante par un artisan préhistorique." },
+      { id: "scarabee", icone: "🪲", nom: "Scarabée d’or", rarete: "Rare", description: "Une amulette minuscule dont la surface brille encore sous la poussière." },
+      { id: "parchemin", icone: "📜", nom: "Parchemin scellé", rarete: "Rare", description: "Quelques signes mystérieux restent visibles sur ce document très ancien." },
+      { id: "casque", icone: "🪖", nom: "Casque cérémoniel", rarete: "Rare", description: "Il appartenait probablement à un chef ou à un gardien du sanctuaire." },
+      { id: "epee", icone: "🗡️", nom: "Épée du fondateur", rarete: "Rare", description: "La légende dit qu’elle fut portée par le premier protecteur du Village." },
+      { id: "masque", icone: "🎭", nom: "Masque oublié", rarete: "Très rare", description: "Un masque de cérémonie au sourire aussi fascinant qu’inquiétant." },
+      { id: "couronne", icone: "👑", nom: "Couronne enfouie", rarete: "Très rare", description: "Une couronne légère sertie de pierres dont personne ne connaît le souverain." },
+      { id: "fossile", icone: "🦴", nom: "Fossile complet", rarete: "Très rare", description: "Les ossements presque complets d’un animal encore inconnu des savants." },
+      { id: "diamant-bleu", icone: "💎", nom: "Diamant bleu", rarete: "Légendaire", description: "Le trésor le plus recherché des fouilles : une pierre d’une pureté irréelle." }
+    ];
 
-    <button class="btn" id="btnNouveauTicket" onclick="initialiserJeu()">Nouveau ticket. 1 🪙</button>
+    const poidsRarete = [
+      { rarete: "Commun", poids: 58 },
+      { rarete: "Rare", poids: 29 },
+      { rarete: "Très rare", poids: 11 },
+      { rarete: "Légendaire", poids: 2 }
+    ];
 
-    <script>
-        const anneesStrates = ["-1 000", "-2 000", "-3 000", "-4 000", "-5 000", "-6 000"];
-        const emoticonsAmbiance = ["🐚", "☠️", "💀", "🦴", "⚰️", "🏺", "⚱️"];
+    let coupsRestants = 3;
+    let gainTotal = 0;
+    let partieTerminee = false;
+    let stratesData = [];
+    let activeStrateIndex = null;
+    let collection = chargerCollection();
+    let dernierObjetNouveau = null;
 
-        let coupsRestants = 3;
-        let gainTotal = 0;
-        let partieTerminee = false;
-        let stratesData = [];
-        let activeStrateIndex = null;
+    const $ = (id) => document.getElementById(id);
 
-        function initialiserJeu() {
-            coupsRestants = 3;
-            gainTotal = 0;
-            partieTerminee = false;
-            activeStrateIndex = null;
-            document.getElementById('coupsRestants').textContent = coupsRestants;
-            document.getElementById('gainActuel').textContent = gainTotal;
-            document.getElementById('feedbackSonore').textContent = "Grattes une strate argentée (1 seule à la fois)...";
-            document.getElementById('btnNouveauTicket').disabled = true;
+    function chargerCollection() {
+      try {
+        const sauvegarde = JSON.parse(localStorage.getItem("archeologue_collection") || "[]");
+        return Array.isArray(sauvegarde) ? sauvegarde : [];
+      } catch {
+        return [];
+      }
+    }
 
-            // 1. Placement du Diamant (augmenté à 20% de chance pour plus de frissons)
-            let indexDiamant = Math.random() < 0.20 ? Math.floor(Math.random() * 6) : -1;
+    function sauvegarderCollection() {
+      localStorage.setItem("archeologue_collection", JSON.stringify(collection));
+    }
 
-            // 2. Répartition généreuse des pièces d'or (plus de gains pour s'amuser)
-            let totalPieces = Math.floor(Math.random() * 5) + 3; // Entre 3 et 7 pièces par ticket
-            let distributionPieces = new Array(6).fill(0);
-            for (let i = 0; i < totalPieces; i++) {
-                distributionPieces[Math.floor(Math.random() * 6)]++;
-            }
+    function tirerRarete() {
+      const total = poidsRarete.reduce((s, r) => s + r.poids, 0);
+      let tirage = Math.random() * total;
+      for (const ligne of poidsRarete) {
+        tirage -= ligne.poids;
+        if (tirage <= 0) return ligne.rarete;
+      }
+      return "Commun";
+    }
 
-            // 3. Construction des strates (3 à 7 émojis par strate au total)
-            stratesData = [];
-            for (let i = 0; i < 6; i++) {
-                let itemsStrate = [];
-                let valeurStr = 0;
-                let nbA = Math.floor(Math.random() * 3) + 2; // 2 à 4 émojis d'ambiance
+    function tirerObjet() {
+      const rarete = tirerRarete();
+      const candidats = catalogueObjets.filter(o => o.rarete === rarete);
+      return candidats[Math.floor(Math.random() * candidats.length)];
+    }
 
-                for(let a = 0; a < nbA; a++) {
-                    let emo = emoticonsAmbiance[Math.floor(Math.random() * emoticonsAmbiance.length)];
-                    itemsStrate.push(emo);
-                }
+    function initialiserJeu() {
+      coupsRestants = 3;
+      gainTotal = 0;
+      partieTerminee = false;
+      activeStrateIndex = null;
+      dernierObjetNouveau = null;
 
-                if (i === indexDiamant) {
-                    itemsStrate.push("💎");
-                    valeurStr += 10;
-                }
+      $("coupsRestants").textContent = coupsRestants;
+      $("gainActuel").textContent = gainTotal;
+      $("feedbackSonore").textContent = "Gratte une strate argentée — une seule à la fois…";
+      $("btnNouveauTicket").disabled = true;
 
-                let nbP = distributionPieces[i];
-                for(let p = 0; p < nbP; p++) {
-                    itemsStrate.push("🪙");
-                    valeurStr += 1;
-                }
+      const indexDiamant = Math.random() < 0.20 ? Math.floor(Math.random() * 6) : -1;
 
-                itemsStrate.sort(() => Math.random() - 0.5);
+      const totalPieces = Math.floor(Math.random() * 5) + 3;
+      const distributionPieces = new Array(6).fill(0);
+      for (let i = 0; i < totalPieces; i++) {
+        distributionPieces[Math.floor(Math.random() * 6)]++;
+      }
 
-                stratesData.push({
-                    annee: anneesStrates[i] + " ans",
-                    items: itemsStrate.join(" "),
-                    valeur: valeurStr,
-                    aDiamant: i === indexDiamant,
-                    aPieces: nbP > 0,
-                    decouverte: false
-                });
-            }
+      // 75 % des tickets contiennent un objet de musée, parfois deux.
+      const objetsParStrate = new Array(6).fill(null);
+      if (Math.random() < 0.75) {
+        const premiereStrate = Math.floor(Math.random() * 6);
+        objetsParStrate[premiereStrate] = tirerObjet();
 
-            afficherGrille();
+        if (Math.random() < 0.12) {
+          let secondeStrate;
+          do {
+            secondeStrate = Math.floor(Math.random() * 6);
+          } while (secondeStrate === premiereStrate);
+          objetsParStrate[secondeStrate] = tirerObjet();
+        }
+      }
+
+      stratesData = anneesStrates.map((annee, i) => {
+        const items = [];
+        const nbAmbiance = Math.floor(Math.random() * 2) + 2;
+
+        for (let a = 0; a < nbAmbiance; a++) {
+          items.push(emoticonsAmbiance[Math.floor(Math.random() * emoticonsAmbiance.length)]);
         }
 
-        function afficherGrille() {
-            const container = document.getElementById('gameContainer');
-            container.innerHTML = "";
+        const objet = objetsParStrate[i];
+        if (objet) items.push(objet.icone);
 
-            stratesData.forEach((data, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'strate-wrapper';
-                wrapper.id = `wrapper-${index}`;
+        if (i === indexDiamant) items.push("💎");
 
-                wrapper.innerHTML = `
-                    <div class="contenu-strate">
-                        <span class="chrono-label">${data.annee}</span>
-                        <span class="elements-box">${data.items}</span>
-                    </div>
-                    <canvas class="scratch-canvas" id="canvas-${index}"></canvas>
-                `;
-                container.appendChild(wrapper);
+        const nbPieces = distributionPieces[i];
+        for (let p = 0; p < nbPieces; p++) items.push("🪙");
 
-                setTimeout(() => initialiserCanvasGrattage(index), 50);
-            });
-            mettreAJourBlocage();
+        melanger(items);
+
+        return {
+          annee: annee + " ans",
+          items,
+          valeur: nbPieces + (i === indexDiamant ? 10 : 0),
+          aDiamant: i === indexDiamant,
+          aPieces: nbPieces > 0,
+          objet,
+          decouverte: false
+        };
+      });
+
+      afficherGrille();
+      afficherCollection();
+    }
+
+    function melanger(tableau) {
+      for (let i = tableau.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tableau[i], tableau[j]] = [tableau[j], tableau[i]];
+      }
+    }
+
+    function afficherGrille() {
+      const container = $("gameContainer");
+      container.innerHTML = "";
+
+      stratesData.forEach((data, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "strate-wrapper";
+        wrapper.id = `wrapper-${index}`;
+        wrapper.innerHTML = `
+          <div class="contenu-strate">
+            <span class="chrono-label">${data.annee}</span>
+            <span class="elements-box">${data.items.map(i => `<span>${i}</span>`).join("")}</span>
+          </div>
+          <canvas class="scratch-canvas" id="canvas-${index}" aria-label="Gratter la strate ${data.annee}"></canvas>
+        `;
+        container.appendChild(wrapper);
+        requestAnimationFrame(() => initialiserCanvasGrattage(index));
+      });
+
+      mettreAJourBlocage();
+    }
+
+    function initialiserCanvasGrattage(index) {
+      const canvas = $(`canvas-${index}`);
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const ratio = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+
+      const ctx = canvas.getContext("2d");
+      ctx.scale(ratio, ratio);
+
+      const largeur = rect.width;
+      const hauteur = rect.height;
+      const degrade = ctx.createLinearGradient(0, 0, largeur, hauteur);
+      degrade.addColorStop(0, "#d8d8d8");
+      degrade.addColorStop(.45, "#9d9d9d");
+      degrade.addColorStop(.55, "#e8e8e8");
+      degrade.addColorStop(1, "#a4a4a4");
+      ctx.fillStyle = degrade;
+      ctx.fillRect(0, 0, largeur, hauteur);
+
+      ctx.globalAlpha = .22;
+      ctx.fillStyle = "#ffffff";
+      for (let x = -hauteur; x < largeur + hauteur; x += 18) {
+        ctx.save();
+        ctx.translate(x, 0);
+        ctx.rotate(-.35);
+        ctx.fillRect(0, 0, 5, hauteur * 2);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+
+      let isDrawing = false;
+      let dernierControle = 0;
+
+      function position(e) {
+        const r = canvas.getBoundingClientRect();
+        const point = e.touches?.[0] || e.changedTouches?.[0] || e;
+        return { x: point.clientX - r.left, y: point.clientY - r.top };
+      }
+
+      function scratch(e) {
+        if (!isDrawing || partieTerminee || coupsRestants <= 0 || stratesData[index].decouverte) return;
+        if (activeStrateIndex !== null && activeStrateIndex !== index) return;
+
+        if (activeStrateIndex === null) {
+          activeStrateIndex = index;
+          mettreAJourBlocage();
         }
 
-        function initialiserCanvasGrattage(index) {
-            const canvas = document.getElementById(`canvas-${index}`);
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+        const pos = position(e);
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 23, 0, Math.PI * 2);
+        ctx.fill();
 
-            // Remplir avec la couche grise argentée unie
-            ctx.fillStyle = '#b8b8b8';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Texture rayée discrète
-            ctx.fillStyle = '#a0a0a0';
-            for(let i = 0; i < canvas.width; i += 14) {
-                ctx.fillRect(i, 0, 5, canvas.height);
-            }
-
-            let isDrawing = false;
-
-            function getMousePos(e) {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                return { x: clientX - rect.left, y: clientY - rect.top };
-            }
-
-            function scratch(e) {
-                if (partieTerminee || coupsRestants <= 0 || stratesData[index].decouverte) return;
-                
-                if (activeStrateIndex !== null && activeStrateIndex !== index) return;
-
-                if (activeStrateIndex === null) {
-                    activeStrateIndex = index;
-                    mettreAJourBlocage();
-                }
-
-                const pos = getMousePos(e);
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
-                ctx.fill();
-
-                if (Math.random() < 0.2) {
-                    document.getElementById('feedbackSonore').textContent = "Frrrr frrrr... ⛏️";
-                }
-
-                const currentAlphaData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-                let transparentPixels = 0;
-                for (let i = 3; i < currentAlphaData.length; i += 16) {
-                    if (currentAlphaData[i] < 128) transparentPixels++;
-                }
-                if ((transparentPixels / (currentAlphaData.length / 16)) > 0.40) {
-                    validerDecouverteStrate(index);
-                }
-            }
-
-            canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(e); });
-            window.addEventListener('mousemove', (e) => { if (isDrawing) scratch(e); });
-            window.addEventListener('mouseup', () => { isDrawing = false; });
-
-            canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); e.preventDefault(); });
-            window.addEventListener('touchmove', (e) => { if (isDrawing) scratch(e); }, { passive: false });
-            window.addEventListener('touchend', () => { isDrawing = false; });
+        const maintenant = performance.now();
+        if (maintenant - dernierControle > 120) {
+          dernierControle = maintenant;
+          if (pourcentageGratte(ctx, largeur, hauteur) >= .42) {
+            validerDecouverteStrate(index);
+          }
         }
+      }
 
-        function validerDecouverteStrate(index) {
-            if (stratesData[index].decouverte) return;
-            stratesData[index].decouverte = true;
+      canvas.addEventListener("pointerdown", (e) => {
+        isDrawing = true;
+        canvas.setPointerCapture?.(e.pointerId);
+        scratch(e);
+      });
 
-            const canvas = document.getElementById(`canvas-${index}`);
-            if (canvas) canvas.remove();
+      canvas.addEventListener("pointermove", scratch);
+      canvas.addEventListener("pointerup", () => { isDrawing = false; });
+      canvas.addEventListener("pointercancel", () => { isDrawing = false; });
+    }
 
-            gainTotal += stratesData[index].valeur;
-            document.getElementById('gainActuel').textContent = gainTotal;
+    function pourcentageGratte(ctx, largeur, hauteur) {
+      const pixels = ctx.getImageData(0, 0, Math.floor(largeur), Math.floor(hauteur)).data;
+      let transparents = 0;
+      let controles = 0;
 
-            if (stratesData[index].aDiamant) {
-                document.getElementById('feedbackSonore').textContent = "💎 Cling cling cling ! DIAMANT ! (+10 🪙)";
-            } else if (stratesData[index].aPieces) {
-                document.getElementById('feedbackSonore').textContent = "🪙 Cling ! Pièce(s) trouvée(s) !";
-            } else {
-                document.getElementById('feedbackSonore').textContent = "🦴 Rien de précieux ici...";
-            }
+      for (let i = 3; i < pixels.length; i += 64) {
+        controles++;
+        if (pixels[i] < 100) transparents++;
+      }
 
-            coupsRestants--;
-            document.getElementById('coupsRestants').textContent = coupsRestants;
+      return controles ? transparents / controles : 0;
+    }
 
-            activeStrateIndex = null;
-            mettreAJourBlocage();
+    function validerDecouverteStrate(index) {
+      const data = stratesData[index];
+      if (data.decouverte) return;
 
-            if (coupsRestants === 0 || verifierToutesDecouvertes()) {
-                terminerPartie();
-            }
-        }
+      data.decouverte = true;
+      $(`canvas-${index}`)?.remove();
+      $(`wrapper-${index}`)?.classList.add("decouverte");
 
-        function verifierToutesDecouvertes() {
-            return stratesData.every(d => d.decouverte);
-        }
+      gainTotal += data.valeur;
+      $("gainActuel").textContent = gainTotal;
 
-        function mettreAJourBlocage() {
-            stratesData.forEach((data, i) => {
-                const wrapper = document.getElementById(`wrapper-${i}`);
-                if (!wrapper) return;
-                if (data.decouverte) {
-                    wrapper.classList.add('bloquee');
-                } else if (activeStrateIndex !== null && activeStrateIndex !== i) {
-                    wrapper.classList.add('bloquee');
-                } else {
-                    wrapper.classList.remove('bloquee');
-                }
-            });
-        }
+      if (data.objet) {
+        enregistrerObjet(data.objet);
+      }
 
-        function terminerPartie() {
-            partieTerminee = true;
-            stratesData.forEach((_, i) => {
-                const canvas = document.getElementById(`canvas-${i}`);
-                if (canvas) canvas.remove();
-            });
+      if (data.aDiamant) {
+        $("feedbackSonore").textContent = "💎 Incroyable ! Un diamant et 10 pièces d’or !";
+      } else if (data.objet && data.aPieces) {
+        $("feedbackSonore").textContent = `${data.objet.icone} Une relique et ${data.valeur} pièce(s) découvertes !`;
+      } else if (data.objet) {
+        $("feedbackSonore").textContent = `${data.objet.icone} Une découverte pour le musée !`;
+      } else if (data.aPieces) {
+        $("feedbackSonore").textContent = `🪙 ${data.valeur} pièce(s) d’or trouvée(s) !`;
+      } else {
+        $("feedbackSonore").textContent = "🦴 Aucun trésor dans cette strate…";
+      }
 
-            document.getElementById('feedbackSonore').textContent = gainTotal > 0 ? `🎉 Terminé ! Gain total : +${gainTotal} 🪙` : "😢 Terminé, pas de gain ce coup-ci.";
-            document.getElementById('btnNouveauTicket').disabled = false;
-        }
+      coupsRestants--;
+      $("coupsRestants").textContent = coupsRestants;
+      activeStrateIndex = null;
+      mettreAJourBlocage();
 
-        window.onload = initialiserJeu;
-    </script>
+      if (coupsRestants === 0 || stratesData.every(d => d.decouverte)) {
+        terminerPartie();
+      }
+    }
+
+    function enregistrerObjet(objet) {
+      const estNouveau = !collection.includes(objet.id);
+      if (estNouveau) {
+        collection.push(objet.id);
+        sauvegarderCollection();
+        dernierObjetNouveau = objet.id;
+      }
+
+      afficherCollection();
+      montrerPopup(objet, estNouveau);
+    }
+
+    function montrerPopup(objet, estNouveau) {
+      $("popupIcone").textContent = objet.icone;
+      $("popupRarete").textContent = objet.rarete;
+      $("popupNom").textContent = estNouveau ? `Nouvelle découverte : ${objet.nom}` : objet.nom;
+      $("popupDescription").textContent = estNouveau
+        ? objet.description
+        : `${objet.description} Cet objet était déjà présent dans ton musée.`;
+      $("popup").classList.add("visible");
+    }
+
+    function afficherCollection() {
+      $("objetsTotal").textContent = catalogueObjets.length;
+      $("objetsTrouves").textContent = collection.length;
+
+      $("collectionGrid").innerHTML = catalogueObjets.map(objet => {
+        const trouve = collection.includes(objet.id);
+        const nouveau = dernierObjetNouveau === objet.id;
+        return `
+          <div class="objet ${trouve ? "" : "inconnu"} ${nouveau ? "nouveau" : ""}">
+            <div class="icone">${trouve ? objet.icone : "❓"}</div>
+            <div class="nom">${trouve ? objet.nom : "Objet inconnu"}</div>
+            <div class="rarete">${trouve ? objet.rarete : "À découvrir"}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function mettreAJourBlocage() {
+      stratesData.forEach((data, i) => {
+        const wrapper = $(`wrapper-${i}`);
+        if (!wrapper) return;
+
+        wrapper.classList.toggle(
+          "bloquee",
+          data.decouverte || (activeStrateIndex !== null && activeStrateIndex !== i)
+        );
+      });
+    }
+
+    function terminerPartie() {
+      partieTerminee = true;
+      stratesData.forEach((_, i) => $(`canvas-${i}`)?.remove());
+
+      $("feedbackSonore").textContent = gainTotal > 0
+        ? `🎉 Fouilles terminées : ${gainTotal} pièce(s) d’or remportée(s).`
+        : "Les fouilles sont terminées. Aucun trésor monétaire cette fois.";
+
+      $("btnNouveauTicket").disabled = false;
+    }
+
+    $("btnNouveauTicket").addEventListener("click", initialiserJeu);
+
+    $("btnMusee").addEventListener("click", () => {
+      $("musee").classList.toggle("ouvert");
+      dernierObjetNouveau = null;
+      afficherCollection();
+    });
+
+    $("btnFermerPopup").addEventListener("click", () => {
+      $("popup").classList.remove("visible");
+    });
+
+    $("popup").addEventListener("click", (e) => {
+      if (e.target === $("popup")) $("popup").classList.remove("visible");
+    });
+
+    $("btnResetCollection").addEventListener("click", () => {
+      if (!confirm("Effacer tous les objets du musée sur cet appareil ?")) return;
+      collection = [];
+      dernierObjetNouveau = null;
+      sauvegarderCollection();
+      afficherCollection();
+    });
+
+    window.addEventListener("load", initialiserJeu);
+  </script>
 </body>
 </html>
