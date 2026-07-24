@@ -81,7 +81,7 @@
             height: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             padding: 0 10px;
             box-sizing: border-box;
             z-index: 1;
@@ -91,21 +91,23 @@
             font-size: 0.7rem;
             font-weight: bold;
             color: #000;
-            background: rgba(255,255,255,0.85);
-            padding: 2px 5px;
+            background: rgba(255,255,255,0.9);
+            padding: 3px 6px;
             border-radius: 4px;
             width: 75px;
             text-align: center;
             flex-shrink: 0;
+            margin-right: 15px;
         }
 
         .elements-box {
-            font-size: 1rem;
-            letter-spacing: 1px;
-            text-align: right;
+            font-size: 1.2rem;
+            letter-spacing: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
             flex-grow: 1;
-            overflow: hidden;
-            white-space: nowrap;
+            padding-right: 10px;
         }
 
         canvas.scratch-canvas {
@@ -167,7 +169,7 @@
 
     <h1>L'Archéologue du Temps</h1>
     <div class="instructions">
-        Frotte une strate pour la découvrir. 3 coups de pioche max (3 strates).
+        Choisis une strate et frotte pour la gratter. 3 coups de pioche max.
     </div>
 
     <div class="game-container" id="gameContainer">
@@ -202,29 +204,22 @@
             document.getElementById('feedbackSonore').textContent = "Grattes une strate argentée (1 seule à la fois)...";
             document.getElementById('btnNouveauTicket').disabled = true;
 
-            // 1. Placement du Diamant (1 chance sur 10)
-            let indexDiamant = Math.random() < 0.10 ? Math.floor(Math.random() * 6) : -1;
+            // 1. Placement du Diamant (augmenté à 20% de chance pour plus de frissons)
+            let indexDiamant = Math.random() < 0.20 ? Math.floor(Math.random() * 6) : -1;
 
-            // 2. Répartition des pièces d'or (entre 0 et 5 pièces au total)
-            let totalPieces = 0;
-            let rand = Math.random();
-            if (rand < 0.35) totalPieces = 0;      
-            else if (rand < 0.65) totalPieces = 1; 
-            else if (rand < 0.85) totalPieces = 2; 
-            else if (rand < 0.95) totalPieces = 3; 
-            else totalPieces = Math.floor(Math.random() * 2) + 4; 
-
+            // 2. Répartition généreuse des pièces d'or (plus de gains pour s'amuser)
+            let totalPieces = Math.floor(Math.random() * 5) + 3; // Entre 3 et 7 pièces par ticket
             let distributionPieces = new Array(6).fill(0);
             for (let i = 0; i < totalPieces; i++) {
                 distributionPieces[Math.floor(Math.random() * 6)]++;
             }
 
-            // 3. Construction des strates (3 à 7 émojis par strate)
+            // 3. Construction des strates (3 à 7 émojis par strate au total)
             stratesData = [];
             for (let i = 0; i < 6; i++) {
                 let itemsStrate = [];
                 let valeurStr = 0;
-                let nbA = Math.floor(Math.random() * 5) + 3; // 3 à 7 émojis d'ambiance
+                let nbA = Math.floor(Math.random() * 3) + 2; // 2 à 4 émojis d'ambiance
 
                 for(let a = 0; a < nbA; a++) {
                     let emo = emoticonsAmbiance[Math.floor(Math.random() * emoticonsAmbiance.length)];
@@ -275,7 +270,6 @@
                 `;
                 container.appendChild(wrapper);
 
-                // Petit délai pour s'assurer que le DOM a affiché le canvas avant de dessiner dessus
                 setTimeout(() => initialiserCanvasGrattage(index), 50);
             });
             mettreAJourBlocage();
@@ -289,21 +283,15 @@
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
 
-            // Remplir avec la couche grise argentée
-            ctx.fillStyle = '#b0b0b0';
+            // Remplir avec la couche grise argentée unie
+            ctx.fillStyle = '#b8b8b8';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Texture rayée argentée
-            ctx.fillStyle = '#9c9c9c';
-            for(let i=0; i<canvas.width; i+=12) {
-                ctx.fillRect(i, 0, 4, canvas.height);
+            // Texture rayée discrète
+            ctx.fillStyle = '#a0a0a0';
+            for(let i = 0; i < canvas.width; i += 14) {
+                ctx.fillRect(i, 0, 5, canvas.height);
             }
-
-            // Texte noir numéroté sur le calque
-            ctx.fillStyle = '#000000';
-            ctx.font = 'bold 13px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(`Strate ${anneesStrates[index]} ans`, canvas.width / 2, canvas.height / 2 + 5);
 
             let isDrawing = false;
 
@@ -317,7 +305,6 @@
             function scratch(e) {
                 if (partieTerminee || coupsRestants <= 0 || stratesData[index].decouverte) return;
                 
-                // Verrouillage : si une autre strate est en cours de grattage, on bloque celle-ci
                 if (activeStrateIndex !== null && activeStrateIndex !== index) return;
 
                 if (activeStrateIndex === null) {
@@ -328,14 +315,13 @@
                 const pos = getMousePos(e);
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
+                ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
                 ctx.fill();
 
                 if (Math.random() < 0.2) {
                     document.getElementById('feedbackSonore').textContent = "Frrrr frrrr... ⛏️";
                 }
 
-                // Si plus de 40% gratté, on valide la découverte de la strate
                 const currentAlphaData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
                 let transparentPixels = 0;
                 for (let i = 3; i < currentAlphaData.length; i += 16) {
@@ -376,7 +362,6 @@
             coupsRestants--;
             document.getElementById('coupsRestants').textContent = coupsRestants;
 
-            // Libère la strate active pour pouvoir en choisir une autre parmi les restantes
             activeStrateIndex = null;
             mettreAJourBlocage();
 
@@ -393,7 +378,6 @@
             stratesData.forEach((data, i) => {
                 const wrapper = document.getElementById(`wrapper-${i}`);
                 if (!wrapper) return;
-                // Si une strate est déjà découverte, ou si une autre strate est active, on gère l'affichage
                 if (data.decouverte) {
                     wrapper.classList.add('bloquee');
                 } else if (activeStrateIndex !== null && activeStrateIndex !== i) {
@@ -415,7 +399,6 @@
             document.getElementById('btnNouveauTicket').disabled = false;
         }
 
-        // Lancer une partie directement au chargement pour voir les strates tout de suite
         window.onload = initialiserJeu;
     </script>
 </body>
