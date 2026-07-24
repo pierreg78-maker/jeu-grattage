@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tresor des ages</title>
+  <title>Tresor des Ages</title>
   <style>
     :root {
       --or: #e6c280;
@@ -365,6 +365,21 @@
       font-size: .68rem;
       cursor: pointer;
     }
+
+    .retour {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: var(--bleu);
+      color: white;
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: 0 5px 12px rgba(30, 74, 117, .22);
+    }
+
   </style>
 </head>
 <body>
@@ -785,5 +800,6 @@
 
     window.addEventListener("load", initialiserJeu);
   </script>
+  <a class="retour" href="https://pierreg78-maker.github.io/village/">🏡 Retour au Village</a>
 </body>
 </html>
