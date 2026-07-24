@@ -28,18 +28,18 @@
         }
 
         h1 {
-            font-size: 1.4rem;
-            margin: 8px 0 4px 0;
+            font-size: 1.3rem;
+            margin: 6px 0 2px 0;
             color: #e6c280;
             text-align: center;
         }
 
         .instructions {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #ccc;
             text-align: center;
             max-width: 400px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .game-container {
@@ -52,20 +52,20 @@
 
         .strate-wrapper {
             position: relative;
-            height: 65px;
+            height: 60px;
             border-radius: 6px;
             overflow: hidden;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
-            border: 2px solid #333;
+            border: 2px solid #444;
         }
 
         .strate-wrapper.bloquee {
-            opacity: 0.3;
+            opacity: 0.35;
             filter: grayscale(80%);
             pointer-events: none;
         }
 
-        /* Couleurs des 6 strates */
+        /* Couleurs des 6 strates en fond */
         .strate-wrapper:nth-child(1) { background-color: var(--color-s1); }
         .strate-wrapper:nth-child(2) { background-color: var(--color-s2); }
         .strate-wrapper:nth-child(3) { background-color: var(--color-s3); }
@@ -88,20 +88,20 @@
         }
 
         .chrono-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: bold;
-            color: #fff;
-            background: rgba(0,0,0,0.5);
-            padding: 2px 6px;
+            color: #000;
+            background: rgba(255,255,255,0.85);
+            padding: 2px 5px;
             border-radius: 4px;
-            width: 85px;
+            width: 75px;
             text-align: center;
             flex-shrink: 0;
         }
 
         .elements-box {
-            font-size: 1.1rem;
-            letter-spacing: 2px;
+            font-size: 1rem;
+            letter-spacing: 1px;
             text-align: right;
             flex-grow: 1;
             overflow: hidden;
@@ -120,37 +120,37 @@
         }
 
         .feedback-sonore {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-style: italic;
             color: #ffeb3b;
-            min-height: 18px;
+            min-height: 16px;
             text-align: center;
-            margin-top: 8px;
+            margin-top: 6px;
             font-weight: bold;
         }
 
         .panneau-score {
-            margin-top: 8px;
-            padding: 8px 15px;
+            margin-top: 6px;
+            padding: 6px 12px;
             background: #2a2a2a;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid #444;
             text-align: center;
             width: 100%;
             max-width: 400px;
             box-sizing: border-box;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .btn {
             background-color: #bc6c25;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 0.95rem;
+            padding: 8px 15px;
+            font-size: 0.9rem;
             border-radius: 6px;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 6px;
             width: 100%;
             max-width: 420px;
             font-weight: bold;
@@ -167,23 +167,23 @@
 
     <h1>L'Archéologue du Temps</h1>
     <div class="instructions">
-        Choisis une strate et <strong>frotte (swipe)</strong> pour la gratter. 3 coups de pioche max (3 strates).
+        Frotte une strate pour la découvrir. 3 coups de pioche max (3 strates).
     </div>
 
     <div class="game-container" id="gameContainer">
         <!-- Généré dynamiquement -->
     </div>
 
-    <div class="feedback-sonore" id="feedbackSonore">Grattes une zone argentée...</div>
+    <div class="feedback-sonore" id="feedbackSonore">Appuie sur un ticket pour commencer...</div>
 
     <div class="panneau-score">
-        Coups restants : <span id="coupsRestants">3</span> | Gain actuel : <span id="gainActuel">0</span> 🪙
+        Coups restants : <span id="coupsRestants">3</span> | Gain : <span id="gainActuel">0</span> 🪙
     </div>
 
     <button class="btn" id="btnNouveauTicket" onclick="initialiserJeu()">Nouveau ticket. 1 🪙</button>
 
     <script>
-        const anneesStrates = ["-2 000 ans", "-4 000 ans", "-6 000 ans", "-8 000 ans", "-10 000 ans", "-12 000 ans"];
+        const anneesStrates = ["-1 000", "-2 000", "-3 000", "-4 000", "-5 000", "-6 000"];
         const emoticonsAmbiance = ["🐚", "☠️", "💀", "🦴", "⚰️", "🏺", "⚱️"];
 
         let coupsRestants = 3;
@@ -199,7 +199,7 @@
             activeStrateIndex = null;
             document.getElementById('coupsRestants').textContent = coupsRestants;
             document.getElementById('gainActuel').textContent = gainTotal;
-            document.getElementById('feedbackSonore').textContent = "Grattes une zone argentée...";
+            document.getElementById('feedbackSonore').textContent = "Grattes une strate argentée (1 seule à la fois)...";
             document.getElementById('btnNouveauTicket').disabled = true;
 
             // 1. Placement du Diamant (1 chance sur 10)
@@ -224,7 +224,7 @@
             for (let i = 0; i < 6; i++) {
                 let itemsStrate = [];
                 let valeurStr = 0;
-                let nbA = Math.floor(Math.random() * 3) + 3; // 3 à 5 émojis d'ambiance
+                let nbA = Math.floor(Math.random() * 5) + 3; // 3 à 7 émojis d'ambiance
 
                 for(let a = 0; a < nbA; a++) {
                     let emo = emoticonsAmbiance[Math.floor(Math.random() * emoticonsAmbiance.length)];
@@ -242,11 +242,10 @@
                     valeurStr += 1;
                 }
 
-                // Mélanger les émojis pour les répartir aléatoirement dans la strate
                 itemsStrate.sort(() => Math.random() - 0.5);
 
                 stratesData.push({
-                    annee: anneesStrates[i],
+                    annee: anneesStrates[i] + " ans",
                     items: itemsStrate.join(" "),
                     valeur: valeurStr,
                     aDiamant: i === indexDiamant,
@@ -276,38 +275,37 @@
                 `;
                 container.appendChild(wrapper);
 
-                initialiserCanvasGrattage(index);
+                // Petit délai pour s'assurer que le DOM a affiché le canvas avant de dessiner dessus
+                setTimeout(() => initialiserCanvasGrattage(index), 50);
             });
             mettreAJourBlocage();
         }
 
         function initialiserCanvasGrattage(index) {
             const canvas = document.getElementById(`canvas-${index}`);
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             
-            // Ajuster la résolution interne du canvas
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
 
-            // Dessiner la couche argentée initiale
+            // Remplir avec la couche grise argentée
             ctx.fillStyle = '#b0b0b0';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Ajouter un effet visuel texturé sur l'argenté
-            ctx.fillStyle = '#909090';
-            for(let i=0; i<canvas.width; i+=15) {
-                ctx.fillRect(i, 0, 5, canvas.height);
+            // Texture rayée argentée
+            ctx.fillStyle = '#9c9c9c';
+            for(let i=0; i<canvas.width; i+=12) {
+                ctx.fillRect(i, 0, 4, canvas.height);
             }
 
-            // Texte indicatif
-            ctx.fillStyle = '#555';
+            // Texte noir numéroté sur le calque
+            ctx.fillStyle = '#000000';
             ctx.font = 'bold 13px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText("Frrrr... Gratter ici ⛏️", canvas.width / 2, canvas.height / 2 + 5);
+            ctx.fillText(`Strate ${anneesStrates[index]} ans`, canvas.width / 2, canvas.height / 2 + 5);
 
             let isDrawing = false;
-            let pixels Grates = 0;
-            const totalPixels = canvas.width * canvas.height;
 
             function getMousePos(e) {
                 const rect = canvas.getBoundingClientRect();
@@ -317,38 +315,34 @@
             }
 
             function scratch(e) {
-                if (partieTerminee || coupsRestants <= 0) return;
+                if (partieTerminee || coupsRestants <= 0 || stratesData[index].decouverte) return;
                 
-                // Si aucune strate n'est encore active sur ce ticket, celle-ci devient l'active
+                // Verrouillage : si une autre strate est en cours de grattage, on bloque celle-ci
+                if (activeStrateIndex !== null && activeStrateIndex !== index) return;
+
                 if (activeStrateIndex === null) {
                     activeStrateIndex = index;
                     mettreAJourBlocage();
                 }
 
-                // Si l'utilisateur essaie de gratter une autre strate que l'active en cours
-                if (activeStrateIndex !== index) return;
-
                 const pos = getMousePos(e);
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 22, 0, Math.PI * 2);
+                ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Son textuel de grattage intermittent
-                if (Math.random() < 0.15) {
+                if (Math.random() < 0.2) {
                     document.getElementById('feedbackSonore').textContent = "Frrrr frrrr... ⛏️";
                 }
 
-                // Vérifier si la strate est suffisamment grattée (> 45%)
-                if (!stratesData[index].decouverte) {
-                    const currentAlphaData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-                    let transparentPixels = 0;
-                    for (let i = 3; i < currentAlphaData.length; i += 16) { // Échantillonnage pour la performance
-                        if (currentAlphaData[i] < 128) transparentPixels++;
-                    }
-                    if ((transparentPixels / (currentAlphaData.length / 16)) > 0.45) {
-                        validerDecouverteStrate(index);
-                    }
+                // Si plus de 40% gratté, on valide la découverte de la strate
+                const currentAlphaData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                let transparentPixels = 0;
+                for (let i = 3; i < currentAlphaData.length; i += 16) {
+                    if (currentAlphaData[i] < 128) transparentPixels++;
+                }
+                if ((transparentPixels / (currentAlphaData.length / 16)) > 0.40) {
+                    validerDecouverteStrate(index);
                 }
             }
 
@@ -365,7 +359,6 @@
             if (stratesData[index].decouverte) return;
             stratesData[index].decouverte = true;
 
-            // Retirer complètement le canvas pour un effet propre
             const canvas = document.getElementById(`canvas-${index}`);
             if (canvas) canvas.remove();
 
@@ -373,15 +366,19 @@
             document.getElementById('gainActuel').textContent = gainTotal;
 
             if (stratesData[index].aDiamant) {
-                document.getElementById('feedbackSonore').textContent = "💎 Cling cling cling ! DIAMANT DÉCOUVERT ! (+10 🪙)";
+                document.getElementById('feedbackSonore').textContent = "💎 Cling cling cling ! DIAMANT ! (+10 🪙)";
             } else if (stratesData[index].aPieces) {
-                document.getElementById('feedbackSonore').textContent = "🪙 Cling ! Pièce(s) d'or trouvée(s) !";
+                document.getElementById('feedbackSonore').textContent = "🪙 Cling ! Pièce(s) trouvée(s) !";
             } else {
-                document.getElementById('feedbackSonore').textContent = "🦴 Vestiges découverts (Rien par ici)...";
+                document.getElementById('feedbackSonore').textContent = "🦴 Rien de précieux ici...";
             }
 
             coupsRestants--;
             document.getElementById('coupsRestants').textContent = coupsRestants;
+
+            // Libère la strate active pour pouvoir en choisir une autre parmi les restantes
+            activeStrateIndex = null;
+            mettreAJourBlocage();
 
             if (coupsRestants === 0 || verifierToutesDecouvertes()) {
                 terminerPartie();
@@ -393,9 +390,13 @@
         }
 
         function mettreAJourBlocage() {
-            stratesData.forEach((_, i) => {
+            stratesData.forEach((data, i) => {
                 const wrapper = document.getElementById(`wrapper-${i}`);
-                if (activeStrateIndex !== null && activeStrateIndex !== i && !stratesData[i].decouverte) {
+                if (!wrapper) return;
+                // Si une strate est déjà découverte, ou si une autre strate est active, on gère l'affichage
+                if (data.decouverte) {
+                    wrapper.classList.add('bloquee');
+                } else if (activeStrateIndex !== null && activeStrateIndex !== i) {
                     wrapper.classList.add('bloquee');
                 } else {
                     wrapper.classList.remove('bloquee');
@@ -410,10 +411,11 @@
                 if (canvas) canvas.remove();
             });
 
-            document.getElementById('feedbackSonore').textContent = gainTotal > 0 ? `🎉 Victoire ! Total : +${gainTotal} 🪙` : "😢 Pas de chance, tour de pioche vide...";
+            document.getElementById('feedbackSonore').textContent = gainTotal > 0 ? `🎉 Terminé ! Gain total : +${gainTotal} 🪙` : "😢 Terminé, pas de gain ce coup-ci.";
             document.getElementById('btnNouveauTicket').disabled = false;
         }
 
+        // Lancer une partie directement au chargement pour voir les strates tout de suite
         window.onload = initialiserJeu;
     </script>
 </body>
