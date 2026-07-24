@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>L'Archéologue du Temps - Jeu à Gratter</title>
+    <style>
+        :root {
+            --color-s1: #e6c280;
+            --color-s2: #d4a373;
+            --color-s3: #bc6c25;
+            --color-s4: #a0522d;
+            --color-s5: #8b4513;
+            --color-s6: #654321;
+            --color-s7: #4a3525;
+            --color-s8: #2b1d0c;
+            --color-s9: #111111;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #f4f4f9;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 10px 0 5px 0;
+            color: #e6c280;
+            text-align: center;
+        }
+
+        .instructions {
+            font-size: 0.85rem;
+            color: #ccc;
+            text-align: center;
+            max-width: 380px;
+            margin-bottom: 15px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .strate {
+            position: relative;
+            height: 60px;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+            cursor: pointer;
+        }
+
+        /* Couleurs des 9 strates */
+        .strate:nth-child(1) { background-color: var(--color-s1); color: #333; }
+        .strate:nth-child(2) { background-color: var(--color-s2); color: #333; }
+        .strate:nth-child(3) { background-color: var(--color-s3); color: #fff; }
+        .strate:nth-child(4) { background-color: var(--color-s4); color: #fff; }
+        .strate:nth-child(5) { background-color: var(--color-s5); color: #fff; }
+        .strate:nth-child(6) { background-color: var(--color-s6); color: #fff; }
+        .strate:nth-child(7) { background-color: var(--color-s7); color: #fff; }
+        .strate:nth-child(8) { background-color: var(--color-s8); color: #fff; }
+        .strate:nth-child(9) { background-color: var(--color-s9); color: #fff; }
+
+        .strate .couche-grattee {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #b0b0b0, #d0d0d0, #b0b0b0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #555;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            z-index: 2;
+            border: 1px dashed #888;
+        }
+
+        .strate.revele .couche-grattee {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .contenu-strate {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            font-size: 0.85rem;
+            z-index: 1;
+        }
+
+        .feedback-sonore {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #ffeb3b;
+            min-height: 20px;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .panneau-score {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            border: 1px solid #444;
+            text-align: center;
+            width: 100%;
+            max-width: 380px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background-color: #bc6c25;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 380px;
+            font-weight: bold;
+        }
+
+        .btn:disabled {
+            background-color: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>L'Archéologue du Temps</h1>
+    <div class="instructions">
+        Donne <strong>3 coups de pioche</strong>. Dans chaque strate, les vestiges et les richesses cohabitent ! Coût : 1 🪙.
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <!-- Généré dynamiquement -->
+    </div>
+
+    <div class="feedback-sonore" id="feedbackSonore">Pioche ta première strate...</div>
+
+    <div class="panneau-score">
+        <div>Coups restants : <span id="coupsRestants">3</span></div>
+        <div>Gain actuel : <span id="gainActuel">0</span> 🪙</div>
+    </div>
+
+    <button class="btn" id="btnAction" onclick="initialiserJeu()">Nouveau Ticket (1 🪙)</button>
+
+    <script>
+        const elementsAmbiance = [
+            "Pointes de lance", "Amphores anciennes", "Arêtes de poissons", 
+            "Fossiles de coquillages", "Dents de préhistorique", "Crânes anciens", "Ossements"
+        ];
+
+        let coupsRestants = 3;
+        let gainTotal = 0;
+        let partieTerminee = false;
+        let stratesData = [];
+
+        function genererTicket() {
+            coupsRestants = 3;
+            gainTotal = 0;
+            partieTerminee = false;
+            document.getElementById('coupsRestants').textContent = coupsRestants;
+            document.getElementById('gainActuel').textContent = gainTotal;
+            document.getElementById('feedbackSonore').textContent = "Prêt à creuser ?";
+            document.getElementById('btnAction').textContent = "Partie en cours...";
+            document.getElementById('btnAction').disabled = true;
+
+            // 1. Placement du Diamant (1 chance sur 10 sur le ticket entier)
+            let indexDiamant = Math.random() < 0.10 ? Math.floor(Math.random() * 9) : -1;
+
+            // 2. Répartition des pièces d'or (entre 0 et 5 pièces au total sur le ticket)
+            let totalPieces = 0;
+            let rand = Math.random();
+            if (rand < 0.35) totalPieces = 0;      
+            else if (rand < 0.65) totalPieces = 1; 
+            else if (rand < 0.85) totalPieces = 2; 
+            else if (rand < 0.95) totalPieces = 3; 
+            else totalPieces = Math.floor(Math.random() * 2) + 4; 
+
+            let distributionPieces = new Array(9).fill(0);
+            for (let i = 0; i < totalPieces; i++) {
+                let pos = Math.floor(Math.random() * 9);
+                distributionPieces[pos]++; // Permet d'avoir parfois plusieurs pièces dans la même strate !
+            }
+
+            // 3. Construction des strates (cohabitation des éléments)
+            stratesData = [];
+            for (let i = 0; i < 9; i++) {
+                let itemsStrate = [];
+                let valeurStr = 0;
+
+                // Ajout d'éléments d'ambiance (1 à 2 par strate)
+                let nbAmbiance = Math.floor(Math.random() * 2) + 1;
+                for(let a = 0; a < nbAmbiance; a++) {
+                    let ambient = elementsAmbiance[Math.floor(Math.random() * elementsAmbiance.length)];
+                    if(!itemsStrate.includes(ambient)) itemsStrate.push(ambient);
+                }
+
+                // Intégration du Diamant
+                if (i === indexDiamant) {
+                    itemsStrate.push("💎 1 Diamant");
+                    valeurStr += 10;
+                }
+
+                // Intégration des Pièces d'or dans la même strate
+                let nbP = distributionPieces[i];
+                if (nbP > 0) {
+                    itemsStrate.push(`🪙 ${nbP} Pièce(s)`);
+                    valeurStr += nbP;
+                }
+
+                stratesData.push({
+                    texte: itemsStrate.join(" + "),
+                    valeur: valeurStr,
+                    aDiamant: i === indexDiamant,
+                    aPieces: nbP > 0,
+                    revele: false
+                });
+            }
+
+            afficherGrille();
+        }
+
+        function afficherGrille() {
+            const container = document.getElementById('gameContainer');
+            container.innerHTML = "";
+
+            stratesData.forEach((data, index) => {
+                const div = document.createElement('div');
+                div.className = 'strate';
+                div.id = `strate-${index}`;
+                div.onclick = () => grefferStrate(index);
+
+                div.innerHTML = `
+                    <div class="contenu-strate">
+                        <span><strong>Strate ${index + 1}</strong></span>
+                        <span style="text-align: right; font-size: 0.8rem;">${data.texte}</span>
+                    </div>
+                    <div class="couche-grattee" id="couche-${index}">Gratter ⛏️</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function grefferStrate(index) {
+            if (partieTerminee || stratesData[index].revele || coupsRestants <= 0) return;
+
+            stratesData[index].revele = true;
+            document.getElementById(`strate-${index}`).classList.add('revele');
+            
+            gainTotal += stratesData[index].valeur;
+            document.getElementById('gainActuel').textContent = gainTotal;
+
+            // Gestion des sons textuels demandés
+            let sonTexte = "Frrrr frrrr... (Coup de pioche)";
+            if (stratesData[index].aDiamant) {
+                sonTexte = "💎 Cling cling cling ! DIAMANT DÉCOUVERT ! (+10 🪙)";
+            } else if (stratesData[index].aPieces) {
+                sonTexte = "✨ Cling ! Une ou plusieurs pièces trouvées !";
+            }
+            document.getElementById('feedbackSonore').textContent = sonTexte;
+
+            coupsRestants--;
+            document.getElementById('coupsRestants').textContent = coupsRestants;
+
+            if (coupsRestants === 0) {
+                terminerPartie();
+            }
+        }
+
+        function terminerPartie() {
+            partieTerminee = true;
+            stratesData.forEach((data, index) => {
+                if (!data.revele) {
+                    document.getElementById(`strate-${index}`).classList.add('revele');
+                    document.getElementById(`strate-${index}`).style.opacity = '0.4';
+                }
+            });
+
+            const btn = document.getElementById('btnAction');
+            btn.disabled = false;
+            btn.textContent = gainTotal > 0 ? `Victoire ! +${gainTotal} 🪙 (Rejouer)` : "Coup de pioche dans le vide... (Rejouer)";
+        }
+
+        window.onload = genererTicket;
+    </script>
+</body>
+</html>
