@@ -456,8 +456,52 @@
     let activeStrateIndex = null;
     let collection = chargerCollection();
     let dernierObjetNouveau = null;
+    let dernierSonPioche = 0;
+
+    const URL_SONS = {
+      pioche: "https://raw.githubusercontent.com/pierreg78-maker/AtelierMemo-Assets/main/assets/sons/tresor_des_ages/pioche.wav",
+      objet: "https://raw.githubusercontent.com/pierreg78-maker/AtelierMemo-Assets/main/assets/sons/tresor_des_ages/decouverte_objet.wav",
+      tresor: "https://raw.githubusercontent.com/pierreg78-maker/AtelierMemo-Assets/main/assets/sons/tresor_des_ages/piece_tresor.wav"
+    };
+
+    const sons = {
+      pioche: new Audio(URL_SONS.pioche),
+      objet: new Audio(URL_SONS.objet),
+      tresor: new Audio(URL_SONS.tresor)
+    };
+
+    sons.pioche.preload = "auto";
+    sons.objet.preload = "auto";
+    sons.tresor.preload = "auto";
+    sons.pioche.volume = 0.42;
+    sons.objet.volume = 0.72;
+    sons.tresor.volume = 0.78;
 
     const $ = (id) => document.getElementById(id);
+
+    function jouerSon(nom, { reprendreAuDebut = true } = {}) {
+      const son = sons[nom];
+      if (!son) return;
+
+      try {
+        if (reprendreAuDebut) son.currentTime = 0;
+        const lecture = son.play();
+        if (lecture && typeof lecture.catch === "function") {
+          lecture.catch(() => {
+            // Le navigateur peut bloquer un son avant la première interaction.
+          });
+        }
+      } catch (erreur) {
+        console.warn(`Lecture du son « ${nom} » impossible :`, erreur);
+      }
+    }
+
+    function jouerPioche() {
+      const maintenant = performance.now();
+      if (maintenant - dernierSonPioche < 150) return;
+      dernierSonPioche = maintenant;
+      jouerSon("pioche");
+    }
 
     function chargerCollection() {
       try {
@@ -637,6 +681,7 @@
         }
 
         const pos = position(e);
+        jouerPioche();
         ctx.globalCompositeOperation = "destination-out";
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, 23, 0, Math.PI * 2);
@@ -688,6 +733,12 @@
 
       if (data.objet) {
         enregistrerObjet(data.objet);
+      }
+
+      if (data.aDiamant || data.aPieces) {
+        jouerSon("tresor");
+      } else if (data.objet) {
+        jouerSon("objet");
       }
 
       if (data.aDiamant) {
