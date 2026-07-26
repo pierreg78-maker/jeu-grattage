@@ -292,67 +292,115 @@
     .decouverte-popup {
       position: fixed;
       inset: 0;
-      z-index: 20;
+      z-index: 20000;
       display: none;
       place-items: center;
-      background: rgba(10,8,5,.73);
-      padding: 22px;
+      background: rgba(8, 6, 4, .82);
+      padding: 14px;
     }
 
     .decouverte-popup.visible { display: grid; }
 
     .carte-decouverte {
-      width: min(330px, 92vw);
-      padding: 22px 18px;
-      color: #3b2a18;
-      text-align: center;
-      background:
-        linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.05)),
-        #ead8ad;
-      border: 4px solid #a87933;
+      position: relative;
+      width: min(900px, 96vw);
+      min-height: min(570px, 84vh);
+      overflow: hidden;
+      border: 3px solid rgba(230, 194, 128, .78);
       border-radius: 18px;
-      box-shadow: 0 15px 60px rgba(0,0,0,.55);
-      animation: apparition .35s ease-out;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.10) 0 37%, rgba(0,0,0,.76) 58%, rgba(0,0,0,.88) 100%),
+        url("https://raw.githubusercontent.com/pierreg78-maker/AtelierMemo-Assets/main/assets/personnages/Archibald_popup.jpg") center / cover no-repeat;
+      box-shadow: 0 18px 70px rgba(0,0,0,.72);
+      animation: apparition .28s ease-out;
     }
 
     @keyframes apparition {
-      from { transform: scale(.72) rotate(-3deg); opacity: 0; }
+      from { transform: scale(.92); opacity: 0; }
     }
 
-    .carte-decouverte .grand-icone { font-size: 4.4rem; }
+    .contenu-archibald {
+      position: relative;
+      z-index: 1;
+      width: 58%;
+      min-height: min(570px, 84vh);
+      margin-left: auto;
+      padding: clamp(22px, 4vw, 44px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      color: #fff;
+      text-align: left;
+      text-shadow: 0 2px 4px rgba(0,0,0,.9);
+    }
+
+    .archibald-exclamation {
+      margin: 0 0 10px;
+      color: #ffe2a2;
+      font: 900 clamp(1.35rem, 3.1vw, 2rem)/1.1 Georgia, serif;
+    }
+
     .carte-decouverte h3 {
-      font-family: Georgia, serif;
-      margin: 5px 0;
-      color: #6a431d;
-      font-size: 1.35rem;
+      margin: 0 0 14px;
+      color: #fff;
+      font: 900 clamp(1.3rem, 3vw, 1.9rem)/1.15 Georgia, serif;
     }
 
     .carte-decouverte .badge {
       display: inline-block;
-      margin: 3px 0 8px;
-      padding: 4px 9px;
+      margin: 0 0 14px;
+      padding: 5px 10px;
+      border: 1px solid rgba(255,226,162,.65);
       border-radius: 99px;
-      background: #6a431d;
-      color: #fff4d5;
-      font-size: .68rem;
+      background: rgba(72,45,20,.76);
+      color: #ffe8b2;
+      font-size: .72rem;
       font-weight: 900;
       text-transform: uppercase;
+      letter-spacing: .05em;
     }
 
     .carte-decouverte p {
-      font-size: .82rem;
-      line-height: 1.35;
-      margin: 6px 0 13px;
+      margin: 0 0 22px;
+      font-size: clamp(.96rem, 2.2vw, 1.28rem);
+      line-height: 1.45;
+      font-weight: 750;
     }
 
     .petit-btn {
-      border: 0;
-      border-radius: 8px;
-      padding: 9px 14px;
-      background: #9b5c20;
+      align-self: flex-end;
+      border: 1px solid #f6d387;
+      border-radius: 10px;
+      padding: 11px 17px;
+      background: linear-gradient(#b8792f, #7a4518);
       color: white;
+      font-size: .94rem;
       font-weight: 900;
       cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,.35);
+    }
+
+    @media (max-width: 650px) {
+      .carte-decouverte {
+        min-height: min(650px, 88vh);
+        background:
+          linear-gradient(0deg, rgba(0,0,0,.90) 0 49%, rgba(0,0,0,.12) 78%),
+          url("https://raw.githubusercontent.com/pierreg78-maker/AtelierMemo-Assets/main/assets/personnages/Archibald_popup.jpg") 30% center / cover no-repeat;
+      }
+
+      .contenu-archibald {
+        width: 100%;
+        min-height: min(650px, 88vh);
+        padding: 20px;
+        justify-content: flex-end;
+      }
+
+      .archibald-exclamation { margin-bottom: 5px; }
+      .carte-decouverte h3 { margin-bottom: 7px; }
+      .carte-decouverte .badge { margin-bottom: 8px; }
+      .carte-decouverte p { margin-bottom: 14px; line-height: 1.35; }
+      .petit-btn { align-self: stretch; }
     }
 
     .reset {
@@ -414,12 +462,14 @@
   </section>
 
   <div class="decouverte-popup" id="popup">
-    <div class="carte-decouverte">
-      <div class="grand-icone" id="popupIcone"></div>
-      <div class="badge" id="popupRarete"></div>
-      <h3 id="popupNom"></h3>
-      <p id="popupDescription"></p>
-      <button class="petit-btn" id="btnFermerPopup">Ajouter au musée</button>
+    <div class="carte-decouverte" role="dialog" aria-modal="true" aria-labelledby="popupNom">
+      <div class="contenu-archibald">
+        <div class="archibald-exclamation" id="popupExclamation">Merveilleux !</div>
+        <h3 id="popupNom"></h3>
+        <div class="badge" id="popupRarete"></div>
+        <p id="popupDescription"></p>
+        <button class="petit-btn" id="btnFermerPopup">Continuer les fouilles ✨</button>
+      </div>
     </div>
   </div>
 
@@ -429,18 +479,38 @@
     const emoticonsAmbiance = ["🐚", "🪨", "🦴", "🔥", "⚱️", "🧱", "🌿"];
 
     const catalogueObjets = [
-      { id: "piece-romaine", icone: "🪙", nom: "Monnaie antique", rarete: "Commun", description: "Une monnaie usée par d’innombrables échanges au marché du vieux village." },
-      { id: "amphore", icone: "🏺", nom: "Amphore intacte", rarete: "Commun", description: "Un petit récipient de terre cuite miraculeusement préservé." },
-      { id: "ammonite", icone: "🐚", nom: "Ammonite", rarete: "Commun", description: "Le fossile spiralé d’une créature marine disparue depuis des millénaires." },
-      { id: "pointe", icone: "🔺", nom: "Pointe de silex", rarete: "Commun", description: "Un outil taillé avec une précision étonnante par un artisan préhistorique." },
-      { id: "scarabee", icone: "🪲", nom: "Scarabée d’or", rarete: "Rare", description: "Une amulette minuscule dont la surface brille encore sous la poussière." },
-      { id: "parchemin", icone: "📜", nom: "Parchemin scellé", rarete: "Rare", description: "Quelques signes mystérieux restent visibles sur ce document très ancien." },
-      { id: "casque", icone: "🪖", nom: "Casque cérémoniel", rarete: "Rare", description: "Il appartenait probablement à un chef ou à un gardien du sanctuaire." },
-      { id: "epee", icone: "🗡️", nom: "Épée du fondateur", rarete: "Rare", description: "La légende dit qu’elle fut portée par le premier protecteur du Village." },
-      { id: "masque", icone: "🎭", nom: "Masque oublié", rarete: "Très rare", description: "Un masque de cérémonie au sourire aussi fascinant qu’inquiétant." },
-      { id: "couronne", icone: "👑", nom: "Couronne enfouie", rarete: "Très rare", description: "Une couronne légère sertie de pierres dont personne ne connaît le souverain." },
-      { id: "fossile", icone: "🦴", nom: "Fossile complet", rarete: "Très rare", description: "Les ossements presque complets d’un animal encore inconnu des savants." },
-      { id: "diamant-bleu", icone: "💎", nom: "Diamant bleu", rarete: "Légendaire", description: "Le trésor le plus recherché des fouilles : une pierre d’une pureté irréelle." }
+      { id: "vase-gaulois", icone: "🏺", nom: "Vase gaulois", rarete: "Commun", description: "Les vases gaulois en céramique servaient à conserver le vin, la bière ou les grains. Certains portaient des motifs géométriques ou animaliers typiques de l’art celtique." },
+      { id: "urne-funeraire", icone: "⚱️", nom: "Urne funéraire", rarete: "Commun", description: "Utilisées dès le Néolithique, les urnes funéraires contenaient les cendres des défunts. Chez les Étrusques et les Romains, certaines étaient richement décorées." },
+      { id: "fragment-poutre", icone: "🪵", nom: "Fragment de poutre", rarete: "Commun", description: "Les poutres de chêne médiévales révèlent des techniques de charpenterie très précises. Certaines charpentes de cathédrales ont traversé plus de huit siècles." },
+      { id: "fossile-poisson", icone: "🐟", nom: "Fossile de poisson", rarete: "Commun", description: "Certains fossiles de poissons conservent encore les détails des nageoires et des écailles. Ils racontent des millions d’années d’évolution de la vie aquatique." },
+      { id: "brique-romaine", icone: "🧱", nom: "Brique romaine", rarete: "Commun", description: "Les briques romaines portaient parfois le nom d’une légion ou de leur fabricant. On en retrouve encore dans les thermes, les aqueducs et les villas." },
+      { id: "clochette-bronze", icone: "🔔", nom: "Clochette en bronze", rarete: "Commun", description: "Les clochettes en bronze servaient aux rituels, aux troupeaux ou à la signalisation. Leur son clair pouvait porter à grande distance." },
+      { id: "astrolabe", icone: "🧭", nom: "Astrolabe", rarete: "Rare", description: "Perfectionné par les savants arabes au IXe siècle, l’astrolabe mesurait la hauteur des étoiles. Il aidait aussi les voyageurs et les navigateurs à s’orienter." },
+      { id: "bague-marchand", icone: "💍", nom: "Bague du marchand", rarete: "Rare", description: "Au Moyen Âge, les marchands utilisaient des bagues-sceaux gravées de leur marque. Elles permettaient d’authentifier contrats et lettres sans signature manuscrite." },
+      { id: "pointe-fleche", icone: "🏹", nom: "Pointe de flèche", rarete: "Rare", description: "Les pointes de flèche en silex témoignent déjà d’une taille très précise il y a environ 20 000 ans. Le fer et l’acier les rendirent ensuite plus résistantes." },
+      { id: "cle-medievale", icone: "🗝️", nom: "Clé médiévale", rarete: "Rare", description: "Les clés médiévales en fer forgé ouvraient parfois des serrures complexes. Les plus ornées symbolisaient le pouvoir ou l’accès à un précieux coffre." },
+      { id: "plume-ecriture", icone: "🪶", nom: "Plume d’écriture", rarete: "Rare", description: "Les plumes d’oie dominèrent l’écriture européenne pendant plus de mille ans. Elles devaient être retaillées régulièrement et utilisées avec une encre adaptée." },
+      { id: "lampe-huile", icone: "🕯️", nom: "Lampe à huile", rarete: "Rare", description: "Les lampes à huile romaines brûlaient souvent de l’huile d’olive. Leur faible lumière éclairait les maisons, les déplacements nocturnes et les cérémonies." },
+      { id: "collier-princier", icone: "📿", nom: "Collier princier", rarete: "Très rare", description: "Le collier de la tombe de Vix, en or et en corail, pesait près d’un kilo. Il appartenait probablement à une princesse celte du VIe siècle avant notre ère." },
+      { id: "sceau-royal", icone: "⚜️", nom: "Sceau royal", rarete: "Très rare", description: "Les grands sceaux authentifiaient officiellement les actes royaux. Leur matrice était jalousement gardée, puis souvent brisée à chaque changement de règne." },
+      { id: "bouclier-grave", icone: "🛡️", nom: "Bouclier gravé", rarete: "Très rare", description: "Le bouclier de Battersea, découvert dans la Tamise, illustre le raffinement de l’art celtique. Trop décoré pour la bataille, il était probablement cérémoniel." },
+      { id: "codex-enlumine", icone: "📖", nom: "Codex enluminé", rarete: "Très rare", description: "Le Livre de Kells est un manuscrit irlandais décoré d’or et de pigments rares. Ses pages comptent parmi les chefs-d’œuvre de l’art médiéval." },
+      { id: "croix-orfevre", icone: "⛪", nom: "Croix d’orfèvre", rarete: "Très rare", description: "La croix de Cong, en bronze doré et cristaux de roche, était portée lors des processions. Elle témoigne du talent des orfèvres monastiques médiévaux." },
+      { id: "couronne-empereur", icone: "👑", nom: "Couronne de l’Empereur", rarete: "Légendaire", description: "La Couronne du Saint-Empire servit au sacre de nombreux empereurs germaniques. Conservée à Vienne, elle reste un puissant symbole du pouvoir impérial." },
+      { id: "cristal-ages", icone: "💠", nom: "Cristal des Âges", rarete: "Légendaire", description: "Selon une légende du Village, ce cristal conserverait la mémoire des civilisations disparues. Aucun archéologue n’a pourtant réussi à l’identifier avec certitude." },
+      { id: "idole-oubliee", icone: "🗿", nom: "Idole oubliée", rarete: "Légendaire", description: "La Vénus de Willendorf, vieille d’environ 27 000 ans, compte parmi les plus anciennes figurines féminines connues. Sa signification demeure mystérieuse." },
+      { id: "tresor-temple", icone: "⚱️", nom: "Trésor du Temple", rarete: "Légendaire", description: "Le trésor du Temple de Jérusalem fut emporté par les Romains en 70 de notre ère. Une partie aurait été montrée à Rome lors du triomphe de Titus." }
+    ];
+
+    const exclamationsArchibald = [
+      "🤩 Merveilleux !",
+      "🔎 Regardez ça !",
+      "🏺 Fascinant !",
+      "✨ Quelle découverte !",
+      "👏 Excellent !",
+      "😮 Incroyable !",
+      "📜 Remarquable !",
+      "🧭 Voilà qui est passionnant !"
     ];
 
     const poidsRarete = [
@@ -783,13 +853,18 @@
     }
 
     function montrerPopup(objet, estNouveau) {
-      $("popupIcone").textContent = objet.icone;
-      $("popupRarete").textContent = objet.rarete;
-      $("popupNom").textContent = estNouveau ? `Nouvelle découverte : ${objet.nom}` : objet.nom;
-      $("popupDescription").textContent = estNouveau
-        ? objet.description
-        : `${objet.description} Cet objet était déjà présent dans ton musée.`;
+      const exclamation = exclamationsArchibald[
+        Math.floor(Math.random() * exclamationsArchibald.length)
+      ];
+
+      $("popupExclamation").textContent = exclamation;
+      $("popupRarete").textContent = estNouveau
+        ? `${objet.rarete} · Nouvelle découverte`
+        : `${objet.rarete} · Déjà au musée`;
+      $("popupNom").textContent = `${objet.icone} ${objet.nom}`;
+      $("popupDescription").textContent = objet.description;
       $("popup").classList.add("visible");
+      $("btnFermerPopup").focus();
     }
 
     function afficherCollection() {
@@ -954,6 +1029,12 @@
       if (e.target === $("popup")) $("popup").classList.remove("visible");
     });
 
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && $("popup").classList.contains("visible")) {
+        $("popup").classList.remove("visible");
+      }
+    });
+
     $("btnResetCollection").addEventListener("click", () => {
       if (!confirm("Effacer tous les objets du musée sur cet appareil ?")) return;
       collection = [];
@@ -969,6 +1050,6 @@
       preparerPremierTicket();
     });
   </script>
-<br><a class="retour" href="https://pierreg78-maker.github.io/village/">🏡 Retour au Village</a>
+  <a class="retour" href="https://pierreg78-maker.github.io/village/">🏡 Retour au Village</a>
 </body>
 </html>
