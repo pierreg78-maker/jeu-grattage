@@ -136,9 +136,7 @@
     }
 
     .chrono-label {
-      position: absolute;
       width: 82px;
-      z-index: 100;
       flex: 0 0 82px;
       color: #241a12;
       background: rgba(255,250,235,.91);
@@ -696,10 +694,11 @@
         wrapper.id = `wrapper-${index}`;
         wrapper.innerHTML = `
           <div class="contenu-strate">
-            <span class="chrono-label">${data.annee}</span>
+            
             <span class="elements-box">${data.items.map(i => `<span>${i}</span>`).join("")}</span>
           </div>
           <canvas class="scratch-canvas" id="canvas-${index}" aria-label="Gratter la strate ${data.annee}"></canvas>
+          <span class="chrono-label">${data.annee}</span>
         `;
         container.appendChild(wrapper);
         requestAnimationFrame(() => initialiserCanvasGrattage(index));
