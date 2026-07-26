@@ -767,7 +767,7 @@
         const maintenant = performance.now();
         if (maintenant - dernierControle > 120) {
           dernierControle = maintenant;
-          if (pourcentageGratte(ctx, largeur, hauteur) >= .90) {
+          if (pourcentageGratte(ctx, largeur, hauteur) >= .85) {
             validerDecouverteStrate(index);
           }
         }
