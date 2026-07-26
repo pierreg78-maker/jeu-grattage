@@ -373,7 +373,7 @@
       min-height: 46px;
       padding: 0 18px;
       border-radius: 999px;
-      background: var(--bleu);
+      background: linear-gradient(#2d73c7, #1b4f97);
       color: white;
       text-decoration: none;
       font-weight: 800;
@@ -423,6 +423,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/gh/pierreg78-maker/village@main/village.js"></script>
   <script>
     const anneesStrates = ["-1 000", "-2 000", "-3 000", "-4 000", "-5 000", "-6 000"];
     const emoticonsAmbiance = ["🐚", "🪨", "🦴", "🔥", "⚱️", "🧱", "🌿"];
@@ -457,6 +458,9 @@
     let collection = chargerCollection();
     let dernierObjetNouveau = null;
     let dernierSonPioche = 0;
+    let transactionEnCours = false;
+    let gainEnAttente = 0;
+    let ticketActif = false;
 
     const URL_SONS = {
       pioche: "https://raw.githubusercontent.com/pierreg78-maker/AtelierMemo-Assets/main/assets/sons/tresor_des_ages/pioche.wav",
@@ -532,17 +536,20 @@
       return candidats[Math.floor(Math.random() * candidats.length)];
     }
 
-    function initialiserJeu() {
+    function creerTicket() {
       coupsRestants = 3;
       gainTotal = 0;
       partieTerminee = false;
       activeStrateIndex = null;
       dernierObjetNouveau = null;
+      ticketActif = true;
+      gainEnAttente = 0;
 
       $("coupsRestants").textContent = coupsRestants;
       $("gainActuel").textContent = gainTotal;
       $("feedbackSonore").textContent = "Gratte 100% d'une première strate argentée";
       $("btnNouveauTicket").disabled = true;
+      $("btnNouveauTicket").textContent = "Fouilles en cours…";
 
       const indexDiamant = Math.random() < 0.20 ? Math.floor(Math.random() * 6) : -1;
 
@@ -672,7 +679,7 @@
       }
 
       function scratch(e) {
-        if (!isDrawing || partieTerminee || coupsRestants <= 0 || stratesData[index].decouverte) return;
+        if (!isDrawing || !ticketActif || partieTerminee || coupsRestants <= 0 || stratesData[index].decouverte) return;
         if (activeStrateIndex !== null && activeStrateIndex !== index) return;
 
         if (activeStrateIndex === null) {
@@ -814,18 +821,124 @@
       });
     }
 
-    function terminerPartie() {
+    async function terminerPartie() {
+      if (partieTerminee) return;
+
       partieTerminee = true;
+      ticketActif = false;
       stratesData.forEach((_, i) => $(`canvas-${i}`)?.remove());
 
-      $("feedbackSonore").textContent = gainTotal > 0
-        ? `🎉 Fouilles terminées : ${gainTotal} pièce(s) d’or remportée(s).`
-        : "Les fouilles sont terminées. Aucun trésor monétaire cette fois.";
+      if (gainTotal <= 0) {
+        $("feedbackSonore").textContent = "Les fouilles sont terminées. Aucun trésor monétaire cette fois.";
+        $("btnNouveauTicket").textContent = "Nouveau ticket · 1 🪙";
+        $("btnNouveauTicket").disabled = false;
+        return;
+      }
 
-      $("btnNouveauTicket").disabled = false;
+      gainEnAttente = gainTotal;
+      $("feedbackSonore").textContent = `⏳ Fouilles terminées : enregistrement de ${gainTotal} pièce(s) d’or…`;
+
+      await crediterGainEnAttente();
     }
 
-    $("btnNouveauTicket").addEventListener("click", initialiserJeu);
+    async function crediterGainEnAttente() {
+      if (transactionEnCours || gainEnAttente <= 0) return;
+
+      transactionEnCours = true;
+      $("btnNouveauTicket").disabled = true;
+
+      try {
+        await Village.or.recompenser(gainEnAttente, "Trésor des Âges", {
+          animation: false,
+          son: false,
+          messageAttente: "Enregistrement du trésor…",
+          messageSucces: `Bravo ! ${gainEnAttente} pièce(s) d’or ajoutée(s) à votre profil.`,
+          details: {
+            jeu: "tresor-des-ages",
+            type: "gain-ticket"
+          }
+        });
+
+        $("feedbackSonore").textContent = `🎉 Fouilles terminées : ${gainEnAttente} pièce(s) d’or remportée(s) et enregistrée(s).`;
+        gainEnAttente = 0;
+        $("btnNouveauTicket").textContent = "Nouveau ticket · 1 🪙";
+      } catch (erreur) {
+        console.warn("Crédit du gain impossible :", erreur);
+        $("feedbackSonore").textContent = "⚠️ Gain non enregistré. Vérifiez la connexion puis réessayez.";
+        $("btnNouveauTicket").textContent = "Réessayer l’enregistrement";
+      } finally {
+        transactionEnCours = false;
+        $("btnNouveauTicket").disabled = false;
+      }
+    }
+
+    async function acheterTicket() {
+      if (transactionEnCours) return;
+
+      if (!window.Village) {
+        $("feedbackSonore").textContent = "⚠️ Le service du Village n’est pas disponible.";
+        return;
+      }
+
+      const profil = Village.profil.lire();
+      if (!profil) {
+        Village.ui.erreur("Aucun profil actif. Retournez au Village pour choisir un joueur.", { duree: 5000 });
+        $("feedbackSonore").textContent = "Choisissez d’abord un profil dans le Village.";
+        return;
+      }
+
+      transactionEnCours = true;
+      $("btnNouveauTicket").disabled = true;
+      $("btnNouveauTicket").textContent = "Achat du ticket…";
+
+      try {
+        const resultat = await Village.or.depenser(1, "Trésor des Âges", {
+          confirmer: false,
+          messageSucces: "Ticket acheté : bonne fouille !",
+          details: {
+            jeu: "tresor-des-ages",
+            type: "achat-ticket"
+          }
+        });
+
+        if (resultat?.annule) return;
+        creerTicket();
+      } catch (erreur) {
+        console.warn("Achat du ticket impossible :", erreur);
+        $("feedbackSonore").textContent = erreur.message || "Le ticket n’a pas pu être acheté.";
+        $("btnNouveauTicket").textContent = "Commencer les fouilles · 1 🪙";
+        $("btnNouveauTicket").disabled = false;
+      } finally {
+        transactionEnCours = false;
+      }
+    }
+
+    function preparerPremierTicket() {
+      coupsRestants = 0;
+      gainTotal = 0;
+      partieTerminee = true;
+      ticketActif = false;
+      $("coupsRestants").textContent = "0";
+      $("gainActuel").textContent = "0";
+      $("gameContainer").innerHTML = `
+        <div class="progression" style="text-align:center; padding:22px 14px;">
+          Un ticket coûte <strong>1 pièce d’or</strong>.<br>
+          Les gains seront ajoutés automatiquement à votre profil à la fin des fouilles.
+        </div>
+      `;
+      $("feedbackSonore").textContent = "Appuyez sur le bouton pour commencer une nouvelle fouille.";
+      $("btnNouveauTicket").textContent = "Commencer les fouilles · 1 🪙";
+      $("btnNouveauTicket").disabled = false;
+      afficherCollection();
+    }
+
+    $("btnNouveauTicket").addEventListener("click", async () => {
+      if (gainEnAttente > 0) {
+        await crediterGainEnAttente();
+      } else {
+        await acheterTicket();
+      }
+    });
 
     $("btnMusee").addEventListener("click", () => {
       $("musee").classList.toggle("ouvert");
@@ -849,7 +962,12 @@
       afficherCollection();
     });
 
-    window.addEventListener("load", initialiserJeu);
+    window.addEventListener("load", () => {
+      if (window.Village) {
+        Village.init({ debug: false });
+      }
+      preparerPremierTicket();
+    });
   </script>
   <a class="retour" href="https://pierreg78-maker.github.io/village/">🏡 Retour au Village</a>
 </body>
